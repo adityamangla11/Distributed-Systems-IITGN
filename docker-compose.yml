@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  central_server:
+    build:
+      context: .
+      dockerfile: ./central_server/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - UPPERCASE_SERVICE_URL=http://uppercase_service:5001
+      - LOWERCASE_SERVICE_URL=http://lowercase_service:5002
+      - REVERSE_SERVICE_URL=http://reverse_service:5003
+      - WORDCOUNT_SERVICE_URL=http://wordcount_service:5004
+    depends_on:
+      - uppercase_service
+      - lowercase_service
+      - reverse_service
+      - wordcount_service
+
+  uppercase_service:
+    build:
+      context: .
+      dockerfile: ./uppercase_service/Dockerfile
+    ports:
+      - "5001:5001"
+
+  lowercase_service:
+    build:
+      context: .
+      dockerfile: ./lowercase_service/Dockerfile
+    ports:
+      - "5002:5002"
+
+  reverse_service:
+    build:
+      context: .
+      dockerfile: ./reverse_service/Dockerfile
+    ports:
+      - "5003:5003"
+
+  wordcount_service:
+    build:
+      context: .
+      dockerfile: ./wordcount_service/Dockerfile
+    ports:
+      - "5004:5004"
+
+  client:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    environment:
+      - CENTRAL_SERVER_URL=http://central_server:8080/dispatch
+    depends_on:
+      - central_server
+    stdin_open: true
+    tty: true
